@@ -1,0 +1,19 @@
+.body_letterbox_extension {
+    font-family: Arial, sans-serif;
+    padding-left: 10px;
+    width: 150px;
+    justify-content: center;
+}
+
+.watch-it {
+    background-color: #00cc44;
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.watch-it:hover {
+    background-color: #009933;
+}
