@@ -20,7 +20,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                         console.log("Le premier id est :", firstId);
 
                         // Construire l'URL de la vidéo
-                        const urlVideo = `https://vidsrc.cc/embed/movie/${firstId}`;
+                        const urlVideo = `https://vidsrc.win/watch/${firstId}`;
 
                         // Ouvrir la vidéo dans un nouvel onglet
                         window.open(urlVideo, '_blank');
