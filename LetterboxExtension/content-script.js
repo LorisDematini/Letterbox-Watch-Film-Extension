@@ -1,38 +1,91 @@
-// Écouteur de messages du popup
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    if (request.action === 'fetchMovieData') {
-        // Récupération de l'élément contenant le nom du film
-        let filmNameElement = document.querySelector('.name.js-widont.prettify');
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
-        if (filmNameElement) {
-            let filmName = filmNameElement.innerText.trim();
-            const headers = {
-                "Accept": "application/json",
-                "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJkZDIxYzJkZjE1ZmEzZjFjODY2MzhmNzhkMTc3NWVmMCIsInN1YiI6IjYzMzY5YmU1Y2JhMzZmMDA5YTQxOTE3YiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.RI7HArwasRdK7Db92106s4Th6dq-SeI0rn73vN5Olgw"
-            };
-            const urlFilm = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(filmName)}`;
+    if (request.action !== 'handleMode') return;
 
-            fetch(urlFilm, { headers })
-                .then(response => response.json())
-                .then(parsedData => {
-                    if (parsedData.results.length > 0) {
-                        const firstId = parsedData.results[0].id;
-                        console.log("Le premier id est :", firstId);
+    if (request.mode === 'film') {
+        handleFilmPage();
+    }
 
-                        // Construire l'URL de la vidéo
-                        const urlVideo = `https://vidsrc.win/watch/${firstId}`;
+    else if (request.mode === 'watchlist') {
+        handleWatchlistPage();
+    }
 
-                        // Ouvrir la vidéo dans un nouvel onglet
-                        window.open(urlVideo, '_blank');
-                    } else {
-                        console.error("Aucun résultat trouvé pour le nom du film.");
-                    }
-                })
-                .catch(error => {
-                    console.error("Une erreur est survenue :", error);
-                });
-        } else {
-            alert('Impossible de trouver le nom du film sur cette page.');
-        }
+    else {
+        alert("Cette page n'est ni un film ni une watchlist.");
     }
 });
+
+
+function handleFilmPage() {
+    let filmNameElement = document.querySelector('.name.js-widont.prettify');
+
+    if (!filmNameElement) {
+        alert("Film introuvable.");
+        return;
+    }
+
+    let filmName = filmNameElement.innerText.trim();
+
+    const headers = {
+        "Accept": "application/json",
+        "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJkZDIxYzJkZjE1ZmEzZjFjODY2MzhmNzhkMTc3NWVmMCIsInN1YiI6IjYzMzY5YmU1Y2JhMzZmMDA5YTQxOTE3YiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.RI7HArwasRdK7Db92106s4Th6dq-SeI0rn73vN5Olgw"
+    };
+
+    const urlFilm = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(filmName)}`;
+
+    fetch(urlFilm, { headers })
+        .then(res => res.json())
+        .then(data => {
+            if (data.results.length > 0) {
+                const id = data.results[0].id;
+                const urlVideo = `https://vidsrc.win/watch/${id}`;
+                window.open(urlVideo, '_blank');
+            } else {
+                alert("Aucun film trouvé.");
+            }
+        })
+        .catch(error => {
+            console.error("Une erreur est survenue :", error);
+        });
+}
+
+function handleWatchlistPage() {
+    const items = document.querySelectorAll('li.griditem');
+
+    if (!items.length) {
+        alert("Aucun film trouvé dans la watchlist.");
+        return;
+    }
+
+    const films = [];
+
+    items.forEach(item => {
+        const component = item.querySelector('.react-component');
+
+        if (!component) return;
+
+        const link = component.getAttribute('data-item-link');
+        const name = component.getAttribute('data-item-full-display-name');
+        const filmId = component.getAttribute('data-film-id');
+
+        if (link) {
+            films.push({
+                url: "https://letterboxd.com" + link,
+                name,
+                id: filmId
+            });
+        }
+    });
+
+    if (films.length === 0) {
+        alert("Impossible d'extraire les films.");
+        return;
+    }
+
+    const randomFilm = films[Math.floor(Math.random() * films.length)];
+
+    console.log("Film sélectionné :", randomFilm);
+
+    window.location.href = randomFilm.url;
+
+}
