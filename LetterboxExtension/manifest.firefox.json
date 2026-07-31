@@ -1,0 +1,40 @@
+{
+  "manifest_version": 3,
+  "name": "My Letterboxd Extension",
+  "version": "1.0",
+  "description": "Ajoute des fonctionnalités personnalisées à Letterboxd",
+  "permissions": [
+    "activeTab",
+    "storage"
+  ],
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "letterbox-watch-film@example.com",
+      "strict_min_version": "109.0"
+    }
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/Letterbox.png",
+      "48": "icons/Letterbox.png",
+      "128": "icons/Letterbox.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.letterboxd.com/*"],
+      "js": ["content-script.js"]
+    }
+  ],
+  "icons": {
+    "16": "icons/Letterbox.png",
+    "48": "icons/Letterbox.png",
+    "128": "icons/Letterbox.png"
+  }
+}
